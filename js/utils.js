@@ -73,25 +73,28 @@ function getISODate(d) {
  * Calculate difference and format the result text
  * @param {number} todayTemp 
  * @param {number} pastTemp 
+ * @param {string} dateText (e.g., "2026/06/06 (土)")
  * @returns {Object} { text: string, className: string }
  */
-function getComparisonText(todayTemp, pastTemp) {
+function getComparisonText(todayTemp, pastTemp, dateText) {
     const diff = todayTemp - pastTemp;
     const absDiff = Math.abs(diff).toFixed(1);
+    const dateLabel = dateText ? `${dateText} より` : "過去より";
+    const dateLabelEqual = dateText ? `${dateText} と` : "過去と";
     
     if (diff > 0) {
         return { 
-            text: `過去より <span class="highlight-hot">${absDiff}°C 高い</span> です`, 
+            text: `${dateLabel} <span class="highlight-hot">${absDiff}°C 高い</span> です`, 
             className: 'hot' 
         };
     } else if (diff < 0) {
         return { 
-            text: `過去より <span class="highlight-cold">${absDiff}°C 低い</span> です`, 
+            text: `${dateLabel} <span class="highlight-cold">${absDiff}°C 低い</span> です`, 
             className: 'cold' 
         };
     } else {
         return { 
-            text: `過去と <span class="highlight-neutral">同じ気温</span> です`, 
+            text: `${dateLabelEqual} <span class="highlight-neutral">同じ気温</span> です`, 
             className: 'neutral' 
         };
     }

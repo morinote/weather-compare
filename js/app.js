@@ -179,16 +179,18 @@ function updateComparison() {
         return;
     }
 
+    const pastDateFormatted = formatDate(pastData.date);
+
     // Max Temp Comparison
     const todayMax = todayData.maxTemp;
     const pastMax = pastData.maxTemp;
-    const maxResult = getComparisonText(todayMax, pastMax);
+    const maxResult = getComparisonText(todayMax, pastMax, pastDateFormatted);
     comparisonResultEl.innerHTML = maxResult.text;
 
     // Min Temp Comparison
     const todayMin = todayData.minTemp;
     const pastMin = pastData.minTemp;
-    const minResult = getComparisonText(todayMin, pastMin);
+    const minResult = getComparisonText(todayMin, pastMin, pastDateFormatted);
     comparisonResultMinEl.innerHTML = minResult.text;
 }
 
