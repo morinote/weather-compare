@@ -1,6 +1,5 @@
 :root {
-    --bg-gradient-start: #f0f4f8;
-    --bg-gradient-end: #d9e2ec;
+    --bg-color: #f0f4f8;
     --card-bg: rgba(255, 255, 255, 0.55);
     --card-border: rgba(255, 255, 255, 0.7);
     --text-primary: #102a43;
@@ -20,7 +19,7 @@
 }
 
 body {
-    background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+    background-color: var(--bg-color);
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
@@ -28,25 +27,6 @@ body {
     align-items: center;
     overflow-x: hidden;
     position: relative;
-}
-
-/* Background Animation */
-.background-animation {
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(25, 130, 196, 0.12) 0%, transparent 60%),
-                radial-gradient(circle at 80% 80%, rgba(239, 71, 111, 0.08) 0%, transparent 50%);
-    animation: rotateBg 30s linear infinite;
-    z-index: 0;
-    pointer-events: none;
-}
-
-@keyframes rotateBg {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 
 .app-container {
@@ -425,6 +405,11 @@ body {
 
 /* Responsive */
 @media (max-width: 600px) {
+    body {
+        align-items: flex-start;
+        padding: 1rem 0;
+    }
+
     .app-container {
         padding: 1rem;
     }
