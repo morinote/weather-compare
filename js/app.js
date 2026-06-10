@@ -123,7 +123,7 @@ function getUserLocation() {
                 resolve();
             },
             (error) => {
-                console.warn("Geolocation denied or failed. Using default (Tokyo).", error);
+                console.log("Geolocation denied or failed. Using default (Tokyo).", error);
                 resolve(); // proceed with default
             },
             { timeout: 5000, maximumAge: 60000 }
