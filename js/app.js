@@ -4,6 +4,7 @@ const loadingOverlay = document.getElementById('loading-overlay');
 
 // Today's Elements
 const todayDateEl = document.getElementById('today-date');
+const todayHourlyDateEl = document.getElementById('today-hourly-date');
 const todayIconEl = document.getElementById('today-icon');
 const todayDescEl = document.getElementById('today-desc');
 const todayMaxEl = document.getElementById('today-max');
@@ -31,6 +32,7 @@ let currentLon = 139.6917; // Default Tokyo
 let todayData = null;
 let pastData = null;
 let tempChart = null;
+let todayHourlyChart = null;
 let trendData = null;
 let currentTrendDays = 7; // Default to 1 week
 
@@ -142,12 +144,17 @@ async function fetchAndRenderToday() {
     todayData = await getCurrentWeather(currentLat, currentLon);
     
     todayDateEl.textContent = formatDate(todayData.date);
+    if (todayHourlyDateEl) {
+        todayHourlyDateEl.textContent = formatDate(todayData.date);
+    }
     todayMaxEl.textContent = todayData.maxTemp;
     todayMinEl.textContent = todayData.minTemp;
     
     const info = getWeatherInfo(todayData.weatherCode);
     todayIconEl.textContent = info.icon;
     todayDescEl.textContent = info.desc;
+    
+    updateTodayHourlyChart();
 }
 
 // Fetch and Render Past Weather
@@ -168,6 +175,8 @@ async function fetchAndRenderPast(date) {
         pastIconEl.textContent = "❓";
         pastDescEl.textContent = "データなし";
     }
+    
+    updateTodayHourlyChart();
 }
 
 // Update Comparison Result
@@ -348,6 +357,146 @@ function showLoading(show) {
     } else {
         loadingOverlay.classList.add('hidden');
     }
+}
+
+// Update Today's Hourly Temperature Chart
+function updateTodayHourlyChart() {
+    const canvas = document.getElementById('today-hourly-chart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (todayHourlyChart) {
+        todayHourlyChart.destroy();
+    }
+
+    if (!todayData || !todayData.hourlyTemp || !todayData.hourlyTime) {
+        return;
+    }
+
+    const labels = todayData.hourlyTime.map(timeStr => {
+        const d = new Date(timeStr);
+        return `${d.getHours()}:00`;
+    });
+
+    const gradientToday = ctx.createLinearGradient(0, 0, 0, 200);
+    gradientToday.addColorStop(0, 'rgba(25, 130, 196, 0.25)');
+    gradientToday.addColorStop(1, 'rgba(25, 130, 196, 0.01)');
+
+    const datasets = [
+        {
+            label: '今日',
+            data: todayData.hourlyTemp,
+            borderColor: '#1982c4',
+            backgroundColor: gradientToday,
+            borderWidth: 3,
+            tension: 0.4,
+            pointBackgroundColor: '#1982c4',
+            pointRadius: 2,
+            pointHoverRadius: 5,
+            fill: true
+        }
+    ];
+
+    const hasPastData = pastData && pastData.hourlyTemp && pastData.hourlyTemp.length > 0;
+    if (hasPastData) {
+        datasets.push({
+            label: formatDate(pastData.date),
+            data: pastData.hourlyTemp,
+            borderColor: '#94a3b8',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            tension: 0.4,
+            pointBackgroundColor: '#94a3b8',
+            pointRadius: 2,
+            pointHoverRadius: 5,
+            fill: false
+        });
+    }
+
+    todayHourlyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: hasPastData,
+                    position: 'top',
+                    labels: {
+                        color: '#486581',
+                        font: {
+                            family: "'Inter', sans-serif",
+                            weight: '600',
+                            size: 11
+                        }
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(16, 42, 67, 0.9)',
+                    titleFont: {
+                        family: "'Inter', sans-serif",
+                        weight: '600'
+                    },
+                    bodyFont: {
+                        family: "'Inter', sans-serif"
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            const temp = context.raw;
+                            const index = context.dataIndex;
+                            const isToday = context.datasetIndex === 0;
+                            const targetData = isToday ? todayData : pastData;
+                            const labelName = context.dataset.label;
+                            
+                            const weatherCode = targetData && targetData.hourlyWeatherCode ? targetData.hourlyWeatherCode[index] : null;
+                            let labelText = ` ${labelName}: ${temp}°C`;
+                            if (weatherCode !== null && weatherCode !== undefined) {
+                                const info = getWeatherInfo(weatherCode);
+                                labelText += ` (${info.desc} ${info.icon})`;
+                            }
+                            return labelText;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#486581',
+                        font: {
+                            family: "'Inter', sans-serif",
+                            size: 10
+                        },
+                        maxTicksLimit: 12
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: '#486581',
+                        font: {
+                            family: "'Inter', sans-serif"
+                        },
+                        callback: function(value) {
+                            return value + '°C';
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(16, 42, 67, 0.05)'
+                    }
+                }
+            }
+        }
+    });
 }
 
 // Run on load

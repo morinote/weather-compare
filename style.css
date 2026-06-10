@@ -259,6 +259,18 @@ body {
     margin-left: 2px;
 }
 
+/* Hourly Chart Card */
+.hourly-chart-card {
+    grid-column: 1 / -1;
+    align-items: stretch;
+}
+
+.chart-container-hourly {
+    position: relative;
+    width: 100%;
+    height: 200px;
+}
+
 /* Result Section */
 .result-section {
     width: 100%;

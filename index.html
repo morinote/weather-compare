@@ -1,119 +1,143 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Weather Compare</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
     <main class="app-container">
-        <header class="app-header">
-            <h1>Weather Compare</h1>
-            <div class="location-container">
-                <span class="location-icon">📍</span>
-                <select id="region-select" class="region-select">
-                    <option value="current">現在地 (取得中...)</option>
-                    <option value="43.0621,141.3544">札幌</option>
-                    <option value="38.2682,140.8694">仙台</option>
-                    <option value="35.6895,139.6917">東京</option>
-                    <option value="35.1815,136.9064">名古屋</option>
-                    <option value="34.6937,135.5023">大阪</option>
-                    <option value="34.3853,132.4553">広島</option>
-                    <option value="33.5902,130.4017">福岡</option>
-                    <option value="26.2124,127.6809">那覇</option>
-                </select>
-            </div>
-        </header>
-
-        <section class="cards-container">
-            <!-- Today's Weather Card -->
-            <div class="weather-card today-card">
-                <h2 class="card-title">今日</h2>
-                <div class="date-display" id="today-date">--/--/--</div>
-                
-                <div class="weather-info">
-                    <div class="weather-icon" id="today-icon">🌤️</div>
-                    <div class="weather-desc" id="today-desc">--</div>
-                </div>
-                
-                <div class="temp-container">
-                    <div class="temp max-temp">
-                        <span class="temp-label">最高</span>
-                        <span class="temp-value" id="today-max">--</span><span class="temp-unit">°C</span>
-                    </div>
-                    <div class="temp min-temp">
-                        <span class="temp-label">最低</span>
-                        <span class="temp-value" id="today-min">--</span><span class="temp-unit">°C</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Comparison Card -->
-            <div class="weather-card past-card">
-                <div class="card-header-with-action">
-                    <h2 class="card-title">過去の天気</h2>
-                    <input type="date" id="compare-date" class="date-picker">
-                </div>
-                <div class="date-display" id="past-date-display">日付を選択してください</div>
-                
-                <div class="weather-info">
-                    <div class="weather-icon" id="past-icon">❓</div>
-                    <div class="weather-desc" id="past-desc">--</div>
-                </div>
-                
-                <div class="temp-container">
-                    <div class="temp max-temp">
-                        <span class="temp-label">最高</span>
-                        <span class="temp-value" id="past-max">--</span><span class="temp-unit">°C</span>
-                    </div>
-                    <div class="temp min-temp">
-                        <span class="temp-label">最低</span>
-                        <span class="temp-value" id="past-min">--</span><span class="temp-unit">°C</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Comparison Result Section -->
-        <section class="result-section">
-            <div class="result-box">
-                <h3>気温の比較 (最高気温)</h3>
-                <p id="comparison-result" class="result-text">比較する日付を選択してください。</p>
-            </div>
-            <div class="result-box">
-                <h3>気温の比較 (最低気温)</h3>
-                <p id="comparison-result-min" class="result-text">比較する日付を選択してください。</p>
-            </div>
-        </section>
-
-        <!-- Chart Section -->
-        <section class="chart-section">
-            <div class="chart-box">
-                <div class="chart-header">
-                    <h3>気温の推移</h3>
-                    <div class="chart-toggles">
-                        <button id="toggle-week" class="toggle-btn active">一週間</button>
-                        <button id="toggle-month" class="toggle-btn">一ヶ月</button>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="temp-chart"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <!-- Loading Overlay -->
-        <div id="loading-overlay" class="loading-overlay hidden">
-            <div class="spinner"></div>
-            <p>データを取得中...</p>
+      <header class="app-header">
+        <h1>Weather Compare</h1>
+        <div class="location-container">
+          <span class="location-icon">📍</span>
+          <select id="region-select" class="region-select">
+            <option value="current">現在地 (取得中...)</option>
+            <!-- 札幌市の10区を追加 -->
+            <optgroup label="札幌市 10区">
+              <option value="43.0554,141.3410">札幌市中央区</option>
+              <option value="43.0907,141.3409">札幌市北区</option>
+              <option value="43.0762,141.3637">札幌市東区</option>
+              <option value="43.0475,141.4051">札幌市白石区</option>
+              <option value="43.0314,141.3800">札幌市豊平区</option>
+              <option value="42.9900,141.3535">札幌市南区</option>
+              <option value="43.0744,141.3009">札幌市西区</option>
+              <option value="43.0362,141.4747">札幌市厚別区</option>
+              <option value="43.1220,141.2458">札幌市手稲区</option>
+              <option value="42.9994,141.4438">札幌市清田区</option>
+            </optgroup>
+            <!-- その他の都市 -->
+            <optgroup label="主要都市">
+              <option value="38.2682,140.8694">仙台</option>
+              <option value="35.6895,139.6917">東京</option>
+              <option value="35.1815,136.9064">名古屋</option>
+              <option value="34.6937,135.5023">大阪</option>
+              <option value="34.3853,132.4553">広島</option>
+              <option value="33.5902,130.4017">福岡</option>
+              <option value="26.2124,127.6809">那覇</option>
+            </optgroup>
+          </select>
         </div>
+      </header>
+
+      <section class="cards-container">
+        <!-- Today's Hourly Temp Chart Card -->
+        <div class="weather-card hourly-chart-card">
+            <h2 class="card-title">今日の気温推移 (時間ごと)</h2>
+            <div class="date-display" id="today-hourly-date">--/--/--</div>
+            <div class="chart-container-hourly">
+                <canvas id="today-hourly-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Today's Weather Card -->
+        <div class="weather-card today-card">
+          <h2 class="card-title">今日</h2>
+          <div class="date-display" id="today-date">--/--/--</div>
+
+          <div class="weather-info">
+            <div class="weather-icon" id="today-icon">🌤️</div>
+            <div class="weather-desc" id="today-desc">--</div>
+          </div>
+
+          <div class="temp-container">
+            <div class="temp max-temp">
+              <span class="temp-label">最高</span>
+              <span class="temp-value" id="today-max">--</span><span class="temp-unit">°C</span>
+            </div>
+            <div class="temp min-temp">
+              <span class="temp-label">最低</span>
+              <span class="temp-value" id="today-min">--</span><span class="temp-unit">°C</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparison Card -->
+        <div class="weather-card past-card">
+          <div class="card-header-with-action">
+            <h2 class="card-title">過去の天気</h2>
+            <input type="date" id="compare-date" class="date-picker" />
+          </div>
+          <div class="date-display" id="past-date-display">日付を選択してください</div>
+
+          <div class="weather-info">
+            <div class="weather-icon" id="past-icon">❓</div>
+            <div class="weather-desc" id="past-desc">--</div>
+          </div>
+
+          <div class="temp-container">
+            <div class="temp max-temp">
+              <span class="temp-label">最高</span>
+              <span class="temp-value" id="past-max">--</span><span class="temp-unit">°C</span>
+            </div>
+            <div class="temp min-temp">
+              <span class="temp-label">最低</span>
+              <span class="temp-value" id="past-min">--</span><span class="temp-unit">°C</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Comparison Result Section -->
+      <section class="result-section">
+        <div class="result-box">
+          <h3>気温の比較 (最高気温)</h3>
+          <p id="comparison-result" class="result-text">比較する日付を選択してください。</p>
+        </div>
+        <div class="result-box">
+          <h3>気温の比較 (最低気温)</h3>
+          <p id="comparison-result-min" class="result-text">比較する日付を選択してください。</p>
+        </div>
+      </section>
+
+      <!-- Chart Section -->
+      <section class="chart-section">
+        <div class="chart-box">
+          <div class="chart-header">
+            <h3>気温の推移</h3>
+            <div class="chart-toggles">
+              <button id="toggle-week" class="toggle-btn active">一週間</button>
+              <button id="toggle-month" class="toggle-btn">一ヶ月</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="temp-chart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Loading Overlay -->
+      <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>データを取得中...</p>
+      </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
-</body>
+  </body>
 </html>
