@@ -111,7 +111,7 @@ async function initApp() {
 function getUserLocation() {
     return new Promise((resolve) => {
         if (!navigator.geolocation) {
-            console.warn("Geolocation not supported. Using default (Tokyo).");
+            console.log("Geolocation not supported. Using default (Tokyo).");
             resolve(); // proceed with default
             return;
         }
