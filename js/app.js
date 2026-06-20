@@ -255,99 +255,95 @@ function updateChart() {
     });
 
     tempChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: '最高気温',
-                    data: trendData.maxTemps,
-                    borderColor: '#ef476f',
-                    backgroundColor: 'rgba(239, 71, 111, 0.04)',
-                    borderWidth: 3,
-                    tension: 0.3,
-                    pointBackgroundColor: '#ef476f',
-                    pointRadius: currentTrendDays === 30 ? 1 : 3,
-                    pointHoverRadius: 6,
-                    fill: false
-                },
-                {
-                    label: '最低気温',
-                    data: trendData.minTemps,
-                    borderColor: '#118ab2',
-                    backgroundColor: 'rgba(17, 138, 178, 0.04)',
-                    borderWidth: 3,
-                    tension: 0.3,
-                    pointBackgroundColor: '#118ab2',
-                    pointRadius: currentTrendDays === 30 ? 1 : 3,
-                    pointHoverRadius: 6,
-                    fill: false
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: {
-                        color: '#102a43',
-                        font: {
-                            family: "'Inter', sans-serif",
-                            weight: '600',
-                            size: 12
-                        }
-                    }
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    backgroundColor: 'rgba(16, 42, 67, 0.9)',
-                    titleFont: {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: '最高気温',
+                data: trendData.maxTemps,
+                borderColor: '#ef476f',
+                backgroundColor: 'rgba(239, 71, 111, 0.04)',
+                borderWidth: 3,
+                tension: 0.3,
+                pointBackgroundColor: '#ef476f',
+                pointRadius: currentTrendDays === 30 ? 1 : 3,
+                pointHoverRadius: 6,
+                fill: false
+            },
+            {
+                label: '最低気温',
+                data: trendData.minTemps,
+                borderColor: '#118ab2',
+                backgroundColor: 'rgba(17, 138, 178, 0.04)',
+                borderWidth: 3,
+                tension: 0.3,
+                pointBackgroundColor: '#118ab2',
+                pointRadius: currentTrendDays === 30 ? 1 : 3,
+                pointHoverRadius: 6,
+                fill: false
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    color: '#102a43',
+                    font: {
                         family: "'Inter', sans-serif",
-                        weight: '600'
-                    },
-                    bodyFont: {
-                        family: "'Inter', sans-serif"
-                    },
-                    callbacks: {
-                        label: function(context) {
-                            return ` ${context.dataset.label}: ${context.raw}°C`;
-                        }
+                        weight: '600',
+                        size: 12
                     }
                 }
             },
-            scales: {
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        color: '#486581',
-                        font: {
-                            family: "'Inter', sans-serif"
-                        },
-                        maxTicksLimit: currentTrendDays === 30 ? 10 : 8
-                    }
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+                backgroundColor: 'rgba(16, 42, 67, 0.9)',
+                titleFont: {
+                    family: "'Inter', sans-serif",
+                    weight: '600'
                 },
-                y: {
-                    ticks: {
-                        color: '#486581',
-                        font: {
-                            family: "'Inter', sans-serif"
-                        },
-                        callback: function(value) {
-                            return value + '°C';
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(16, 42, 67, 0.05)'
+                bodyFont: {
+                    family: "'Inter', sans-serif"
+                },
+                callbacks: {
+                    label: function(context) {
+                        return ` ${context.dataset.label}: ${context.raw}°C`;
                     }
                 }
             }
+        },
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: {
+                    color: '#486581',
+                    font: { family: "'Inter', sans-serif" },
+                    maxTicksLimit: currentTrendDays === 30 ? 10 : 8
+                }
+            },
+            y: {
+                ticks: {
+                    color: '#486581',
+                    font: {
+                        family: "'Inter', sans-serif"
+                    },
+                    callback: function(value) {
+                        return value + '°C';
+                    }
+                },
+                grid: {
+                    color: 'rgba(16, 42, 67, 0.05)'
+                }
+            }
         }
-    });
+    }
+});
 }
 
 // Show/Hide Loading Overlay
@@ -361,143 +357,190 @@ function showLoading(show) {
 
 // Update Today's Hourly Temperature Chart
 function updateTodayHourlyChart() {
-    const canvas = document.getElementById('today-hourly-chart');
-    if (!canvas) return;
+  const canvas = document.getElementById('today-hourly-chart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (todayHourlyChart) todayHourlyChart.destroy();
 
-    const ctx = canvas.getContext('2d');
-    if (todayHourlyChart) {
-        todayHourlyChart.destroy();
-    }
-
-    if (!todayData || !todayData.hourlyTemp || !todayData.hourlyTime) {
-        return;
-    }
-
-    const labels = todayData.hourlyTime.map(timeStr => {
-        const d = new Date(timeStr);
+  const hasData = todayData && todayData.hourlyTemp && todayData.hourlyTemp.length;
+  const labels = hasData
+    ? todayData.hourlyTime.map(t => {
+        const d = new Date(t);
         return `${d.getHours()}:00`;
-    });
+      })
+    : Array.from({ length: 24 }, (_, i) => `${i}:00`);
 
+  const datasets = [];
+
+  if (hasData) {
     const gradientToday = ctx.createLinearGradient(0, 0, 0, 200);
-    gradientToday.addColorStop(0, 'rgba(25, 130, 196, 0.25)');
-    gradientToday.addColorStop(1, 'rgba(25, 130, 196, 0.01)');
-
-    const datasets = [
-        {
-            label: '今日',
-            data: todayData.hourlyTemp,
-            borderColor: '#1982c4',
-            backgroundColor: gradientToday,
-            borderWidth: 3,
-            tension: 0.4,
-            pointBackgroundColor: '#1982c4',
-            pointRadius: 2,
-            pointHoverRadius: 5,
-            fill: true
-        }
-    ];
-
-    const hasPastData = pastData && pastData.hourlyTemp && pastData.hourlyTemp.length > 0;
-    if (hasPastData) {
-        datasets.push({
-            label: formatDate(pastData.date),
-            data: pastData.hourlyTemp,
-            borderColor: '#94a3b8',
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            borderDash: [5, 5],
-            tension: 0.4,
-            pointBackgroundColor: '#94a3b8',
-            pointRadius: 2,
-            pointHoverRadius: 5,
-            fill: false
-        });
-    }
-
-    todayHourlyChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: hasPastData,
-                    position: 'top',
-                    labels: {
-                        color: '#486581',
-                        font: {
-                            family: "'Inter', sans-serif",
-                            weight: '600',
-                            size: 11
-                        }
-                    }
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    backgroundColor: 'rgba(16, 42, 67, 0.9)',
-                    titleFont: {
-                        family: "'Inter', sans-serif",
-                        weight: '600'
-                    },
-                    bodyFont: {
-                        family: "'Inter', sans-serif"
-                    },
-                    callbacks: {
-                        label: function(context) {
-                            const temp = context.raw;
-                            const index = context.dataIndex;
-                            const isToday = context.datasetIndex === 0;
-                            const targetData = isToday ? todayData : pastData;
-                            const labelName = context.dataset.label;
-                            
-                            const weatherCode = targetData && targetData.hourlyWeatherCode ? targetData.hourlyWeatherCode[index] : null;
-                            let labelText = ` ${labelName}: ${temp}°C`;
-                            if (weatherCode !== null && weatherCode !== undefined) {
-                                const info = getWeatherInfo(weatherCode);
-                                labelText += ` (${info.desc} ${info.icon})`;
-                            }
-                            return labelText;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        color: '#486581',
-                        font: {
-                            family: "'Inter', sans-serif",
-                            size: 10
-                        },
-                        maxTicksLimit: 12
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: '#486581',
-                        font: {
-                            family: "'Inter', sans-serif"
-                        },
-                        callback: function(value) {
-                            return value + '°C';
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(16, 42, 67, 0.05)'
-                    }
-                }
-            }
-        }
+    gradientToday.addColorStop(0, 'rgba(25,130,196,0.25)');
+    gradientToday.addColorStop(1, 'rgba(25,130,196,0.01)');
+    datasets.push({
+      label: '今日',
+      data: todayData.hourlyTemp,
+      borderColor: '#1982c4',
+      backgroundColor: gradientToday,
+      borderWidth: 3,
+      tension: 0.4,
+      pointBackgroundColor: '#1982c4',
+      pointRadius: 2,
+      pointHoverRadius: 5,
+      fill: true
     });
+  } else {
+    datasets.push({
+      label: 'データなし',
+      data: Array(24).fill(null),
+      borderColor: '#aaa',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderDash: [5,5],
+      tension: 0,
+      pointRadius: 0,
+      fill: false
+    });
+  }
+
+  const hasPastData = pastData && pastData.hourlyTemp && pastData.hourlyTemp.length > 0;
+  if (hasPastData) {
+    datasets.push({
+      label: formatDate(pastData.date),
+      data: pastData.hourlyTemp,
+      borderColor: '#94a3b8',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderDash: [5,5],
+      tension: 0.4,
+      pointBackgroundColor: '#94a3b8',
+      pointRadius: 2,
+      pointHoverRadius: 5,
+      fill: false
+    });
+  }
+
+  todayHourlyChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: hasPastData,
+          position: 'top',
+          labels: { color: '#486581', font: { family: "'Inter', sans-serif", weight: '600', size: 11 } }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: 'rgba(16, 42, 67, 0.9)',
+          titleFont: { family: "'Inter', sans-serif", weight: '600' },
+          bodyFont: { family: "'Inter', sans-serif" },
+          callbacks: {
+            label: function(context) {
+              const temp = context.raw;
+              const index = context.dataIndex;
+              const isToday = context.datasetIndex === 0;
+              const targetData = isToday ? todayData : pastData;
+              const labelName = context.dataset.label;
+              const weatherCode = targetData && targetData.hourlyWeatherCode ? targetData.hourlyWeatherCode[index] : null;
+              let labelText = ` ${labelName}: ${temp}°C`;
+              if (weatherCode !== null && weatherCode !== undefined) {
+                const info = getWeatherInfo(weatherCode);
+                labelText += ` (${info.desc} ${info.icon})`;
+              }
+              return labelText;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#486581', font: { family: "'Inter', sans-serif", size: 10 }, maxTicksLimit: 12 } },
+        y: { ticks: { color: '#486581', callback: v => v + '°C', font: { family: "'Inter', sans-serif" } }, grid: { color: 'rgba(16, 42, 67, 0.05)' } }
+      }
+    }
+  });
 }
 
+/*
+  
+  const ctx = canvas.getContext('2d');
+  if (todayHourlyChart) todayHourlyChart.destroy();
+
+  const hasData = todayData && todayData.hourlyTemp && todayData.hourlyTemp.length;
+  const labels = hasData
+    ? todayData.hourlyTime.map(t => {
+        const d = new Date(t);
+        return `${d.getHours()}:00`;
+      })
+    : Array.from({ length: 24 }, (_, i) => `${i}:00`);
+
+  const datasets = [];
+  if (hasData) {
+    const gradientToday = ctx.createLinearGradient(0, 0, 0, 200);
+    gradientToday.addColorStop(0, 'rgba(25,130,196,0.25)');
+    gradientToday.addColorStop(1, 'rgba(25,130,196,0.01)');
+    datasets.push({
+      label: '今日',
+      data: todayData.hourlyTemp,
+      borderColor: '#1982c4',
+      backgroundColor: gradientToday,
+      borderWidth: 3,
+      tension: 0.4,
+      pointBackgroundColor: '#1982c4',
+      pointRadius: 2,
+      pointHoverRadius: 5,
+      fill: true
+    });
+  } else {
+    datasets.push({
+      label: 'データなし',
+      data: Array(24).fill(null),
+      borderColor: '#aaa',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderDash: [5,5],
+      tension: 0,
+      pointRadius: 0,
+      fill: false
+    });
+  }
+
+  const hasPastData = pastData && pastData.hourlyTemp && pastData.hourlyTemp.length > 0;
+  if (hasPastData) {
+    datasets.push({
+      label: formatDate(pastData.date),
+      data: pastData.hourlyTemp,
+      borderColor: '#94a3b8',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderDash: [5,5],
+      tension: 0.4,
+      pointBackgroundColor: '#94a3b8',
+      pointRadius: 2,
+      pointHoverRadius: 5,
+      fill: false
+    });
+  }
+
+  todayHourlyChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: hasPastData, position: 'top', labels: { color: '#486581', font: { family: "'Inter', sans-serif", weight: '600', size: 11 } } },
+    tooltip: { mode: 'index', intersect: false, backgroundColor: 'rgba(16, 42, 67, 0.9)', titleFont: { family: "'Inter', sans-serif", weight: '600' }, bodyFont: { family: "'Inter', sans-serif" }, callbacks: { label: function(context) { const temp = context.raw; const index = context.dataIndex; const isToday = context.datasetIndex === 0; const targetData = isToday ? todayData : pastData; const labelName = context.dataset.label; const weatherCode = targetData && targetData.hourlyWeatherCode ? targetData.hourlyWeatherCode[index] : null; let labelText = ` ${labelName}: ${temp}°C`; if (weatherCode !== null && weatherCode !== undefined) { const info = getWeatherInfo(weatherCode); labelText += ` (${info.desc} ${info.icon})`; } return labelText; } } }
+  },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#486581', font: { family: "'Inter', sans-serif", size: 10 }, maxTicksLimit: 12 } },
+      y: { ticks: { color: '#486581', callback: v => v + '°C', font: { family: "'Inter', sans-serif" } }, grid: { color: 'rgba(16, 42, 67, 0.05)' } }
+    }
+  }
+}); */
 // Run on load
 document.addEventListener('DOMContentLoaded', initApp);
+// Run on load
+
